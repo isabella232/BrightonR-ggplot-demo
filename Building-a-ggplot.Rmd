@@ -1,0 +1,60 @@
+---
+title: "Building a ggplot!"
+author: "Jack Talboys"
+date: "20/08/2020"
+output: html_document
+---
+We're going to use data from #TidyTuesday, for anyone not aware check out it's [github page](https://github.com/rfordatascience/tidytuesday) for more information. Essentially a weekly dataset is released, and anyone can create a visualization however they want, and show it to the world using the #TidyTuesday on twitter (a really good way to get your data visualizations out there!).
+
+We're going to look at the data on beer from week 14!
+
+Start by pulling the data using the `{tidytuesdayR}` package then assigning each individual data frame to its own object.
+
+```{r}
+# install.packages("tidytuesdayR")
+library(tidytuesdayR)
+beer <- tt_load(2020, week = 14)
+
+beer_states <- beer$beer_states
+beer_taxed <- beer$beer_taxed
+brewer_size <- beer$brewer_size
+brewing_materials <- beer$brewing_materials
+```
+
+I've only got half an hour so just going to look at improving a simple visualization that doesn't require any pre-processing of the data.
+The figures come from the `beer_states` dataset:
+
+```{r}
+head(beer_states)
+```
+
+Starting with a simple plot of the number of barrels produced by year. This is where we finally get to use `{ggplot2}` - there's some steps that will be necessary throughout all of your ggplot's so I'll introduce those first.
+
+```{r}
+# first load (and maybe install if you need to) the ggplot2 package
+#install.packages("ggplot2")
+library(ggplot2)
+
+# All plots begin with a call to ggplot
+ggplot(data = beer_states)
+
+```
+
+This returns a blank plot, and it's from here that we start to build our plot.
+
+We decided to plot number of barrels produced by year, to specify this we can add to our `ggplot` call by passing information through to the `mappings` argument via the `aes` function as follows:
+
+```{r}
+ggplot(data = beer_states,
+       mapping = aes(x = year,
+                     y = barrels))
+```
+
+So this time we get a blank plot, but our axis are in place with the correct range of values and labels taken straight from the column names.
+
+
+# TODO:
+* CONVERT YEAR TO FACTOR
+* CHANGE BARRELS FROM SCIENTIFIC NOTATION
+* CHOOSING A GEOM
+* CHANGING COLOURS/FILLS
