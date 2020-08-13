@@ -10,7 +10,7 @@ We're going to look at the data on beer from week 14!
 
 Start by pulling the data using the `{tidytuesdayR}` package then assigning each individual data frame to its own object.
 
-```{r}
+```{r, message=FALSE}
 # install.packages("tidytuesdayR")
 library(tidytuesdayR)
 beer <- tt_load(2020, week = 14)
@@ -24,8 +24,15 @@ brewing_materials <- beer$brewing_materials
 I've only got half an hour so just going to look at improving a simple visualization that doesn't require any pre-processing of the data.
 The figures come from the `beer_states` dataset:
 
-```{r}
+```{r, message=FALSE}
 head(beer_states)
+
+
+# remove all rows with an NA or 0 in barrels column, I'm sure these have an interesting story but I've not got time to explore it here!
+library(dplyr)
+beer_states <- beer_states %>%
+  filter(!is.na(barrels),
+         barrels != 0)
 ```
 
 Starting with a simple plot of the number of barrels produced by year. This is where we finally get to use `{ggplot2}` - there's some steps that will be necessary throughout all of your ggplot's so I'll introduce those first.
@@ -35,7 +42,8 @@ Starting with a simple plot of the number of barrels produced by year. This is w
 #install.packages("ggplot2")
 library(ggplot2)
 
-# All plots begin with a call to ggplot
+# All plots begin with a call to ggplot, inside we specify the data we're going
+# to create our visualization from
 ggplot(data = beer_states)
 
 ```
@@ -52,9 +60,95 @@ ggplot(data = beer_states,
 
 So this time we get a blank plot, but our axis are in place with the correct range of values and labels taken straight from the column names.
 
+No data has been plotted yet because we've not told `{ggplot2}` how we'd like our data to appear. This is where we get to start making choices beyond just our data. I'd highly recommend starting with the [`{ggplot2}` cheatsheet](https://rstudio.com/wp-content/uploads/2015/05/ggplot2-cheatsheet.pdf). 
+
+In our case we've got two variables (R thinks they're both continuous but we know that really `year` is categorical) so we can see from the cheatsheet there's plenty of options. We'll start with a simple scatter plot using `geom_point`
+
+```{r}
+ggplot(data = beer_states,
+       mapping = aes(x = year,
+                     y = barrels)) + # we chain functions together using `+` 
+                                     # think of it as the %>% for ggplots
+  geom_point()
+```
+
+Not the best plot - we see a massive outlier for each along the top of the plot, a bit of investigation and we realise this is actually the total row for each year which combines the barrels produced from each state for every year. Let's remove these rows using `filter` from `{dplyr}`
+
+```{r, message=FALSE}
+library(dplyr)
+
+beer_states %>%
+  arrange(-barrels) %>% 
+  head()
+
+# remove all rows where state = total
+beer_states <- beer_states %>%
+  filter(state != "total") # read this as "take all rows where state is not equal to total"
+
+```
+
+Now let's have a look at the plot from before
+
+```{r}
+ggplot(data = beer_states,
+       mapping = aes(x = year,
+                     y = barrels)) + 
+  geom_point()
+```
+
+So our data is a bit clearer to see now. Next we want to convert our `year` variable so that it's a factor rather than it's current numerical state. This is as simple as wrapping our call to `year` in the `aes` function with the `factor` function like so:
+
+```{r}
+ggplot(data = beer_states,
+       mapping = aes(x = factor(year),
+                     y = barrels)) + 
+  geom_point()
+```
+
+Great - this has also sorted out the axis ticks! One thing I'm not so keen on is the high density of points at the bottom of the plot for all years, as the values are close together the points overlap so it's hard to tell how many are _really_ down there.
+
+One solution is to change our geom, `geom_jitter` will add some random noise to each observation to spread them out. Here we only want some horizontal jitter, any vertical jitter would change the value of `barrels` that we perceive for that point. We can control the amount of horizontal and vertical jitter using `height` and `width` respectively (I had to check the help file for that dw)
+
+```{r}
+ggplot(data = beer_states,
+       mapping = aes(x = factor(year),
+                     y = barrels)) + 
+  geom_jitter(height = 0,
+              width = 0.2)
+```
+
+It takes a bit of experimenting with the value of `width` to get the right amount of _jitter_, but `0.2` seems to work well. We want to be able to see most of the points (or at least appreciate the density of points everywhere) but still have clearly defined categories (in this case the years).
+
+Editing the labels on a ggplot can be done in two different ways, either specifying all labels in the `labs` function, or for significant labesl like the title and the axis there are specific functions: `xlab`, `ylab` and `ggtitle`. For now I'm going to use `labs` but it really doesn't matter
+
+```{r}
+ggplot(data = beer_states,
+       mapping = aes(x = factor(year),
+                     y = barrels)) + 
+  geom_jitter(height = 0,
+              width = 0.2) +
+  labs(x = "Year",
+       y = "Beer produced (# of barrels)",
+       title = "Barrels of beer produced in each category by year, separated by state")
+```
+
+Looking at the long tail for each year, it might be worth looking at this plot with a logarithmic scale on the y axis, we can implement this using one of the `scale_*` functions from `{ggplot2}`, there's a wide range of them but here we'll need to find the one which implements logarithms base 10.
+
+```{r}
+ggplot(data = beer_states,
+       mapping = aes(x = factor(year),
+                     y = barrels)) + 
+  geom_jitter(height = 0,
+              width = 0.2) +
+  labs(x = "Year",
+       y = "Beer produced (# of barrels)",
+       title = "Barrels of beer produced in each category by year, separated by state") +
+  scale_y_log10()
+```
+
+
 
 # TODO:
-* CONVERT YEAR TO FACTOR
 * CHANGE BARRELS FROM SCIENTIFIC NOTATION
 * CHOOSING A GEOM
 * CHANGING COLOURS/FILLS
