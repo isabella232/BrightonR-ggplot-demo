@@ -2,9 +2,7 @@
 title: "Building a ggplot!"
 author: "Jack Talboys"
 date: "20/08/2020"
-output: 
-  html_document:
-    keep_md: true
+output: github_document
 ---
 We're going to use data from #TidyTuesday, for anyone not aware check out it's [github page](https://github.com/rfordatascience/tidytuesday) for more information. Essentially a weekly dataset is released, and anyone can create a visualization however they want, and show it to the world using the #TidyTuesday on twitter (a really good way to get your data visualizations out there!).
 
