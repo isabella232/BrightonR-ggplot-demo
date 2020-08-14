@@ -3,6 +3,13 @@ Building a ggplot\!
 Jack Talboys
 20/08/2020
 
+Hello\! Welcome to the step-by-step walkthrough of my talk around
+building up a ggplot from BrightonR on the 20th of August. From personal
+experience, using `{ggplot2}` most effectively involves a lot of trial
+and error and plenty of googling, unfortunately I can’t give a massive
+sense of that in this document but just know there was plenty of
+chopping and changing of plots before I settled on something I liked\!
+
 We’re going to use data from \#TidyTuesday, for anyone not aware check
 out it’s [github page](https://github.com/rfordatascience/tidytuesday)
 for more information. Essentially a weekly dataset is released, and
@@ -69,7 +76,7 @@ those first.
 
 ``` r
 # first load (and maybe install if you need to) the ggplot2 package
-#install.packages("ggplot2")
+# install.packages("ggplot2")
 library(ggplot2)
 
 # All plots begin with a call to ggplot, inside we specify the data we're going
@@ -84,7 +91,7 @@ plot.
 
 We decided to plot number of barrels produced by year, to specify this
 we can add to our `ggplot` call by passing information through to the
-`mappings` argument via the `aes` function as follows:
+`mapping` argument via the `aes` function as follows:
 
 ``` r
 ggplot(data = beer_states,
@@ -173,17 +180,19 @@ ggplot(data = beer_states,
 
 ![](Building-a-ggplot_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
-Great - this has also sorted out the axis ticks\! One thing I’m not so
-keen on is the high density of points at the bottom of the plot for all
-years, as the values are close together the points overlap so it’s hard
-to tell how many are *really* down there.
+Great - this has also sorted out the axis ticks\! Although it has also
+messed up the x axis label.
+
+One thing I’m not so keen on is the high density of points at the bottom
+of the plot for all years, as the values are close together the points
+overlap so it’s hard to tell how many are *really* down there.
 
 One solution is to change our geom, `geom_jitter` will add some random
 noise to each observation to spread them out. Here we only want some
 horizontal jitter, any vertical jitter would change the value of
 `barrels` that we perceive for that point. We can control the amount of
 horizontal and vertical jitter using `height` and `width` respectively
-(I had to check the help file for that dw)
+(I had to check the help file for that don’t worry).
 
 ``` r
 ggplot(data = beer_states,
@@ -235,10 +244,13 @@ ggplot(data = beer_states,
   labs(x = "Year",
        y = "Beer produced (# of barrels)",
        title = "Barrels of beer produced in each category by year across states") +
-  scale_y_log10()
+  scale_y_log10(labels = scales::comma) # we can also change from scientific notation here
 ```
 
 ![](Building-a-ggplot_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+We make better use of the space on offer using a log scale, and the
+addition of `scales::comma` I think really shows the log scale a lot
+clearer than the scientific notation from before.
 
 I don’t know if the points are working for me, luckily all we need to do
 to change the geom is change the call from `geom_jitter` to
@@ -252,7 +264,7 @@ ggplot(data = beer_states,
   labs(x = "Year",
        y = "Beer produced (# of barrels)",
        title = "Barrels of beer produced in each category by year across states") +
-  scale_y_log10()
+  scale_y_log10(labels = scales::comma)
 ```
 
 ![](Building-a-ggplot_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
@@ -278,7 +290,7 @@ ggplot(data = beer_states,
   labs(x = "Year",
        y = "Beer produced (# of barrels)",
        title = "Barrels of beer produced in each category by year across states") +
-  scale_y_log10()
+  scale_y_log10(labels = scales::comma)
 ```
 
 ![](Building-a-ggplot_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
@@ -295,7 +307,7 @@ ggplot(data = beer_states,
   labs(x = "Year",
        y = "Beer produced (# of barrels)",
        title = "Barrels of beer produced in each category by year across states") +
-  scale_y_log10() +
+  scale_y_log10(labels = scales::comma) +
   facet_grid(rows = vars(type)) # have to wrap the variable with `vars()`
 ```
 
@@ -321,7 +333,7 @@ ggplot(data = beer_states,
   labs(x = "Year",
        y = "Beer produced (# of barrels)",
        title = "Barrels of beer produced in each category by year across states") +
-  scale_y_log10() +
+  scale_y_log10(labels = scales::comma) +
   facet_grid(rows = vars(type)) +
   geom_text(mapping = aes(x = x, y = y, label = label),
              data = df,
@@ -348,7 +360,7 @@ ggplot(data = beer_states,
   labs(x = "Year",
        y = "Beer produced (# of barrels)",
        title = "Barrels of beer produced in each category by year across states") +
-  scale_y_log10() +
+  scale_y_log10(labels = scales::comma) +
   facet_grid(rows = vars(type)) +
   geom_text(mapping = aes(x = x, y = y, label = label),
              data = df,
@@ -376,7 +388,7 @@ ggplot(data = beer_states,
   labs(x = "Year",
        y = "Beer produced (# of barrels)",
        title = "Barrels of beer produced in each category by year across states") +
-  scale_y_log10() +
+  scale_y_log10(labels = scales::comma) +
   facet_grid(rows = vars(type)) +
   geom_text(mapping = aes(x = x, y = y, label = label),
              data = df,
@@ -388,6 +400,9 @@ ggplot(data = beer_states,
 
 As you can see the theme makes a big difference here\!
 
-Well that’s it for building up this ggplot, thanks for
-listening/reading/watching and any questions feel free to get in touch:
-<jtalboys@mango-solutions.com>
+Well that’s it for building up this ggplot, hopefully even in just half
+an hour I’ve been able to give you a sense of the process for making
+your best ggplot\! Thanks for listening/reading/watching ,any questions
+feel free to get in touch: <jtalboys@mango-solutions.com> and (shameless
+plug) check out [Mango’s website](https://www.mango-solutions.com/) for
+how we can help you and your company on your data journey\!
